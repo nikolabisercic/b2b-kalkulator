@@ -1,21 +1,58 @@
-# B2B Kalkulator
+# B2B Kalkulator 💼
 
-Kalkulator za prelazak sa radnog odnosa na B2B saradnju.
+> **Interaktivni kalkulator za prelazak sa radnog odnosa na B2B saradnju**
 
-## Korišćenje
+🔗 **[Probajte uživo](https://nikolabisercic.github.io/b2b-kalkulator/)**
 
-Jednostavno otvorite stranicu i unesite vašu trenutnu neto platu.
+## 📊 O projektu
 
-## Karakteristike
+B2B Kalkulator je alat koji pomaže zaposlenima da izračunaju finansijske implikacije prelaska sa standardnog radnog odnosa na B2B model saradnje. Kalkulator prikazuje različite scenarije podele uštede između freelancera i firme.
 
-- Automatsko računanje Bruto II zarade
-- Interaktivni slider za podelu uštede
-- Real-time kalkulacije
-- Vizuelni prikaz rezultata
-- Responsive dizajn
+## ✨ Karakteristike
 
-## Napomene
+- 🎯 **Automatsko računanje** - Bruto II se automatski računa na osnovu neto plate
+- 🎚️ **Interaktivni slider** - Lako podešavanje procenta podele uštede
+- ⚡ **Real-time kalkulacije** - Rezultati se ažuriraju instantno
+- 📱 **Responsive dizajn** - Savršeno radi na svim uređajima
+- 🎨 **Moderni UI** - Intuitivan i prijatan za korišćenje
+- ⚠️ **Break-even upozorenja** - Vizuelna indikacija kada gubite na prelasku
 
-- Koeficijent Neto → Bruto II: 1.6244
-- Porez na B2B: 14%
-- Break-even point: ~26% podele
+## 🚀 Kako koristiti
+
+1. Otvorite [kalkulator](https://nikolabisercic.github.io/b2b-kalkulator/)
+2. Unesite vašu trenutnu NETO platu
+3. Pomerajte slider da vidite različite scenarije podele
+4. Analizirajte rezultate i donosite informisanu odluku
+
+## 📝 Tehničke informacije
+
+### Koeficijenti (2025. godina)
+
+- **Neto → Bruto II**: 1.6244
+- **Porez na B2B**: 14%
+- **Break-even point**: ~26% podele u korist freelancera
+
+### Formula
+
+```
+Bruto II = Neto × 1.6244
+Ušteda = Bruto II - Neto
+B2B Neto = (Neto + Ušteda × ProcenatPodele) × 0.86
+```
+
+## 🛠️ Tehnologije
+
+- Pure HTML5 & CSS3
+- Vanilla JavaScript
+- Bez eksternih dependencies
+- Hostovano na GitHub Pages
+
+## 📄 Licenca
+
+Ovaj projekat je slobodan za korišćenje. Možete ga koristiti, deliti i modifikovati po potrebi.
+
+---
+
+<p align="center">
+  Napravljeno sa ❤️ za sve koji razmatraju prelazak na B2B
+</p>
