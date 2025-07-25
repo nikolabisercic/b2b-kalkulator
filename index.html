@@ -394,7 +394,10 @@
             document.getElementById('percentage-decrease').textContent = '-' + ustedaFirmeProcenat.toFixed(1) + '%';
 
             // Break-even upozorenje
-            if (netoPovecanje < 0) {
+            // Never show warning if tax rate is 0%
+            if (B2B_TAX_RATE === 0) {
+                breakEvenWarning.style.display = 'none';
+            } else if (netoPovecanje < 0) {
                 breakEvenWarning.style.display = 'block';
             } else {
                 breakEvenWarning.style.display = 'none';
