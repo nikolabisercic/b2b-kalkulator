@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Kalkulator - Prelazak sa radnog odnosa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #5a67d8;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .input-section {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .slider-container {
+            margin: 30px 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 0 8px rgba(102, 126, 234, 0.1);
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .result-card {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-card.your-benefit {
+            border-color: #48bb78;
+            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+        }
+
+        .result-card.company-benefit {
+            border-color: #4299e1;
+            background: linear-gradient(135deg, #ebf8ff 0%, #e6fffa 100%);
+        }
+
+        .result-card h3 {
+            margin-bottom: 15px;
+            color: #2d3748;
+            font-size: 1.3em;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #718096;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .percentage-increase {
+            color: #48bb78;
+            font-size: 1.2em;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .percentage-decrease {
+            color: #4299e1;
+            font-size: 1.2em;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .break-even-warning {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            color: #c53030;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #edf2f7;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+
+        .split-visualization {
+            display: flex;
+            height: 40px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .split-your {
+            background: #48bb78;
+            transition: all 0.3s ease;
+        }
+
+        .split-company {
+            background: #4299e1;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>B2B Kalkulator 💼</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="neto-plata">Trenutna NETO plata (RSD)</label>
+                <input type="number" id="neto-plata" value="270000" min="0" step="1000">
+            </div>
+            
+            <div class="input-group">
+                <label for="bruto-ii">Bruto II (automatski izračunat)</label>
+                <input type="number" id="bruto-ii" readonly style="background: #edf2f7;">
+            </div>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Podela uštede</span>
+                    <span id="split-percentage">50% / 50%</span>
+                </div>
+                <input type="range" id="split-slider" min="0" max="100" value="50">
+                <div class="split-visualization">
+                    <div class="split-your" id="split-your" style="width: 50%"></div>
+                    <div class="split-company" id="split-company" style="width: 50%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="result-card your-benefit">
+                <h3>📈 Tvoje povećanje</h3>
+                <div class="result-item">
+                    <span class="result-label">B2B faktura:</span>
+                    <span class="result-value" id="b2b-faktura">0 RSD</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Porez (14%):</span>
+                    <span class="result-value" id="porez-iznos">0 RSD</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Neto nakon poreza:</span>
+                    <span class="result-value" id="b2b-neto">0 RSD</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Povećanje:</span>
+                    <span class="result-value" id="neto-povecanje">0 RSD</span>
+                </div>
+                <div class="percentage-increase" id="percentage-increase">+0%</div>
+            </div>
+            
+            <div class="result-card company-benefit">
+                <h3>🏢 Ušteda firme</h3>
+                <div class="result-item">
+                    <span class="result-label">Stari trošak:</span>
+                    <span class="result-value" id="stari-trosak">0 RSD</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Novi trošak:</span>
+                    <span class="result-value" id="novi-trosak">0 RSD</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Ušteda:</span>
+                    <span class="result-value" id="usteda-firme">0 RSD</span>
+                </div>
+                <div class="percentage-decrease" id="percentage-decrease">-0%</div>
+            </div>
+        </div>
+
+        <div id="break-even-warning" class="break-even-warning" style="display: none;">
+            ⚠️ Upozorenje: Sa ovom podelom imaćeš manju neto zaradu nego sada!
+        </div>
+
+        <div class="info-box">
+            <strong>ℹ️ Napomene:</strong><br>
+            • Kalkulator koristi koeficijent 1.6244 za računanje Bruto II iz Neto plate<br>
+            • B2B porez je 14% na bruto iznos fakture<br>
+            • Break-even point je na ~26% podele u tvoju korist<br>
+            • Za povećanje od 15% potrebno ti je ~54% uštede
+        </div>
+    </div>
+
+    <script>
+        // Koeficijenti
+        const NETO_TO_BRUTO_II = 1.6244;
+        const B2B_TAX_RATE = 0.14;
+
+        // Elementi
+        const netoPlataInput = document.getElementById('neto-plata');
+        const brutoIIInput = document.getElementById('bruto-ii');
+        const splitSlider = document.getElementById('split-slider');
+        const splitPercentageLabel = document.getElementById('split-percentage');
+        const breakEvenWarning = document.getElementById('break-even-warning');
+
+        // Formatiranje brojeva
+        function formatNumber(num) {
+            return new Intl.NumberFormat('sr-RS').format(Math.round(num));
+        }
+
+        // Računanje
+        function calculate() {
+            const netoPlata = parseFloat(netoPlataInput.value) || 0;
+            const brutoII = netoPlata * NETO_TO_BRUTO_II;
+            const ustedaTotal = brutoII - netoPlata;
+            const freelancerShare = parseFloat(splitSlider.value) / 100;
+            const companyShare = 1 - freelancerShare;
+
+            // Postavi Bruto II
+            brutoIIInput.value = Math.round(brutoII);
+
+            // Update split label
+            splitPercentageLabel.textContent = `${Math.round(freelancerShare * 100)}% / ${Math.round(companyShare * 100)}%`;
+
+            // Update vizualizaciju
+            document.getElementById('split-your').style.width = `${freelancerShare * 100}%`;
+            document.getElementById('split-company').style.width = `${companyShare * 100}%`;
+
+            // Freelancer kalkulacije
+            const freelancerBenefit = ustedaTotal * freelancerShare;
+            const b2bBruto = netoPlata + freelancerBenefit;
+            const porezIznos = b2bBruto * B2B_TAX_RATE;
+            const b2bNeto = b2bBruto - porezIznos;
+            const netoPovecanje = b2bNeto - netoPlata;
+            const netoPovecanjeProcenat = netoPlata > 0 ? (netoPovecanje / netoPlata) * 100 : 0;
+
+            // Firma kalkulacije
+            const noviTrosakFirme = b2bBruto;
+            const ustedaFirme = brutoII - noviTrosakFirme;
+            const ustedaFirmeProcenat = brutoII > 0 ? (ustedaFirme / brutoII) * 100 : 0;
+
+            // Update UI - Tvoji rezultati
+            document.getElementById('b2b-faktura').textContent = formatNumber(b2bBruto) + ' RSD';
+            document.getElementById('porez-iznos').textContent = '-' + formatNumber(porezIznos) + ' RSD';
+            document.getElementById('b2b-neto').textContent = formatNumber(b2bNeto) + ' RSD';
+            document.getElementById('neto-povecanje').textContent = (netoPovecanje >= 0 ? '+' : '') + formatNumber(netoPovecanje) + ' RSD';
+            document.getElementById('percentage-increase').textContent = (netoPovecanje >= 0 ? '+' : '') + netoPovecanjeProcenat.toFixed(1) + '%';
+
+            // Update UI - Firma rezultati
+            document.getElementById('stari-trosak').textContent = formatNumber(brutoII) + ' RSD';
+            document.getElementById('novi-trosak').textContent = formatNumber(noviTrosakFirme) + ' RSD';
+            document.getElementById('usteda-firme').textContent = formatNumber(ustedaFirme) + ' RSD';
+            document.getElementById('percentage-decrease').textContent = '-' + ustedaFirmeProcenat.toFixed(1) + '%';
+
+            // Break-even upozorenje
+            if (netoPovecanje < 0) {
+                breakEvenWarning.style.display = 'block';
+            } else {
+                breakEvenWarning.style.display = 'none';
+            }
+
+            // Boje za procente
+            const increaseElement = document.getElementById('percentage-increase');
+            if (netoPovecanje < 0) {
+                increaseElement.style.color = '#e53e3e';
+            } else {
+                increaseElement.style.color = '#48bb78';
+            }
+        }
+
+        // Event listeners
+        netoPlataInput.addEventListener('input', calculate);
+        splitSlider.addEventListener('input', calculate);
+
+        // Inicijalno računanje
+        calculate();
+    </script>
+</body>
+</html>
