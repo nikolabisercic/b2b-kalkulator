@@ -325,10 +325,10 @@
         </div>
     </div>
 
+    <script src="calculator.js"></script>
     <script>
-        // Koeficijenti
-        const NETO_TO_BRUTO_II = 1.6244;
-        let B2B_TAX_RATE = 0.14;
+        // Create calculator instance
+        const calculator = new B2BCalculator();
 
         // Elementi
         const netoPlataInput = document.getElementById('neto-plata');
@@ -346,58 +346,44 @@
         // Računanje
         function calculate() {
             const netoPlata = parseFloat(netoPlataInput.value) || 0;
-            const brutoII = netoPlata * NETO_TO_BRUTO_II;
-            const ustedaTotal = brutoII - netoPlata;
-            const freelancerShare = parseFloat(splitSlider.value) / 100;
-            const companyShare = 1 - freelancerShare;
+            const freelancerSharePercent = parseFloat(splitSlider.value);
+            
+            // Update tax rate from input
+            const inputValue = parseFloat(porezStopaInput.value);
+            const taxRate = isNaN(inputValue) ? 0.14 : inputValue / 100;
+            calculator.setTaxRate(taxRate);
+            
+            // Get calculation results
+            const result = calculator.calculate(netoPlata, freelancerSharePercent);
 
             // Postavi Bruto II
-            brutoIIInput.value = Math.round(brutoII);
+            brutoIIInput.value = Math.round(result.brutoII);
 
             // Update split label
-            splitPercentageLabel.textContent = `${Math.round(freelancerShare * 100)}% / ${Math.round(companyShare * 100)}%`;
+            splitPercentageLabel.textContent = `${Math.round(result.freelancerShare * 100)}% / ${Math.round(result.companyShare * 100)}%`;
 
             // Update vizualizaciju
-            document.getElementById('split-your').style.width = `${freelancerShare * 100}%`;
-            document.getElementById('split-company').style.width = `${companyShare * 100}%`;
-
-            // Update tax rate from input
-            B2B_TAX_RATE = parseFloat(porezStopaInput.value) / 100 || 0.14;
+            document.getElementById('split-your').style.width = `${result.freelancerShare * 100}%`;
+            document.getElementById('split-company').style.width = `${result.companyShare * 100}%`;
             
             // Update tax label
             document.getElementById('porez-label').textContent = porezStopaInput.value;
-            
-            // Freelancer kalkulacije
-            const freelancerBenefit = ustedaTotal * freelancerShare;
-            const b2bBruto = netoPlata + freelancerBenefit;
-            const porezIznos = b2bBruto * B2B_TAX_RATE;
-            const b2bNeto = b2bBruto - porezIznos;
-            const netoPovecanje = b2bNeto - netoPlata;
-            const netoPovecanjeProcenat = netoPlata > 0 ? (netoPovecanje / netoPlata) * 100 : 0;
-
-            // Firma kalkulacije
-            const noviTrosakFirme = b2bBruto;
-            const ustedaFirme = brutoII - noviTrosakFirme;
-            const ustedaFirmeProcenat = brutoII > 0 ? (ustedaFirme / brutoII) * 100 : 0;
 
             // Update UI - Tvoji rezultati
-            document.getElementById('b2b-faktura').textContent = formatNumber(b2bBruto) + ' RSD';
-            document.getElementById('porez-iznos').textContent = '-' + formatNumber(porezIznos) + ' RSD';
-            document.getElementById('b2b-neto').textContent = formatNumber(b2bNeto) + ' RSD';
-            document.getElementById('neto-povecanje').textContent = (netoPovecanje >= 0 ? '+' : '') + formatNumber(netoPovecanje) + ' RSD';
-            document.getElementById('percentage-increase').textContent = (netoPovecanje >= 0 ? '+' : '') + netoPovecanjeProcenat.toFixed(1) + '%';
+            document.getElementById('b2b-faktura').textContent = formatNumber(result.b2bBruto) + ' RSD';
+            document.getElementById('porez-iznos').textContent = '-' + formatNumber(result.porezIznos) + ' RSD';
+            document.getElementById('b2b-neto').textContent = formatNumber(result.b2bNeto) + ' RSD';
+            document.getElementById('neto-povecanje').textContent = (result.netoPovecanje >= 0 ? '+' : '') + formatNumber(result.netoPovecanje) + ' RSD';
+            document.getElementById('percentage-increase').textContent = (result.netoPovecanje >= 0 ? '+' : '') + result.netoPovecanjeProcenat.toFixed(1) + '%';
 
             // Update UI - Firma rezultati
-            document.getElementById('stari-trosak').textContent = formatNumber(brutoII) + ' RSD';
-            document.getElementById('novi-trosak').textContent = formatNumber(noviTrosakFirme) + ' RSD';
-            document.getElementById('usteda-firme').textContent = formatNumber(ustedaFirme) + ' RSD';
-            document.getElementById('percentage-decrease').textContent = '-' + ustedaFirmeProcenat.toFixed(1) + '%';
+            document.getElementById('stari-trosak').textContent = formatNumber(result.brutoII) + ' RSD';
+            document.getElementById('novi-trosak').textContent = formatNumber(result.noviTrosakFirme) + ' RSD';
+            document.getElementById('usteda-firme').textContent = formatNumber(result.ustedaFirme) + ' RSD';
+            document.getElementById('percentage-decrease').textContent = '-' + result.ustedaFirmeProcenat.toFixed(1) + '%';
 
             // Break-even upozorenje
-            // Never show warning if tax rate is 0%
-            if (B2B_TAX_RATE === 0) {
-                breakEvenWarning.style.display = 'none';
-            } else if (netoPovecanje < 0) {
+            if (result.shouldShowWarning) {
                 breakEvenWarning.style.display = 'block';
             } else {
                 breakEvenWarning.style.display = 'none';
@@ -405,7 +391,7 @@
 
             // Boje za procente
             const increaseElement = document.getElementById('percentage-increase');
-            if (netoPovecanje < 0) {
+            if (result.netoPovecanje < 0) {
                 increaseElement.style.color = '#e53e3e';
             } else {
                 increaseElement.style.color = '#48bb78';

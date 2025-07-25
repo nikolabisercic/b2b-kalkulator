@@ -1,0 +1,33 @@
+{
+  "name": "b2b-kalkulator",
+  "version": "1.0.0",
+  "description": "B2B Calculator for Serbian freelancers",
+  "main": "calculator.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikolabisercic/b2b-kalkulator.git"
+  },
+  "keywords": [
+    "b2b",
+    "calculator",
+    "serbia",
+    "freelance"
+  ],
+  "author": "Nikola Bisercic",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "calculator.js"
+    ]
+  }
+}

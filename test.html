@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Calculator Tests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-pass {
+            color: green;
+            margin: 5px 0;
+        }
+        .test-fail {
+            color: red;
+            margin: 5px 0;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fd;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>B2B Calculator Test Suite</h1>
+        <div id="test-results"></div>
+        <div id="summary" class="summary"></div>
+    </div>
+
+    <script src="calculator.js"></script>
+    <script>
+        // Simple test framework
+        class TestRunner {
+            constructor() {
+                this.results = [];
+                this.currentSection = '';
+            }
+
+            section(name) {
+                this.currentSection = name;
+                const section = document.createElement('div');
+                section.className = 'test-section';
+                section.innerHTML = `<h2>${name}</h2>`;
+                section.id = name.replace(/\s+/g, '-');
+                document.getElementById('test-results').appendChild(section);
+            }
+
+            test(description, testFn) {
+                try {
+                    testFn();
+                    this.results.push({ pass: true, description, section: this.currentSection });
+                    this.displayResult(true, description);
+                } catch (error) {
+                    this.results.push({ pass: false, description, section: this.currentSection, error });
+                    this.displayResult(false, description, error.message);
+                }
+            }
+
+            displayResult(pass, description, error = '') {
+                const sectionEl = document.getElementById(this.currentSection.replace(/\s+/g, '-'));
+                const result = document.createElement('div');
+                result.className = pass ? 'test-pass' : 'test-fail';
+                result.textContent = `${pass ? '✓' : '✗'} ${description}`;
+                if (error) {
+                    result.textContent += ` - ${error}`;
+                }
+                sectionEl.appendChild(result);
+            }
+
+            displaySummary() {
+                const passed = this.results.filter(r => r.pass).length;
+                const failed = this.results.filter(r => !r.pass).length;
+                const total = this.results.length;
+                
+                const summary = document.getElementById('summary');
+                summary.innerHTML = `
+                    <h3>Test Summary</h3>
+                    <p>Total Tests: ${total}</p>
+                    <p style="color: green;">Passed: ${passed}</p>
+                    <p style="color: red;">Failed: ${failed}</p>
+                    <p>Success Rate: ${((passed / total) * 100).toFixed(1)}%</p>
+                `;
+            }
+        }
+
+        // Helper function for assertions
+        function assert(condition, message) {
+            if (!condition) {
+                throw new Error(message || 'Assertion failed');
+            }
+        }
+
+        function assertClose(actual, expected, tolerance = 0.01, message) {
+            const diff = Math.abs(actual - expected);
+            if (diff > tolerance) {
+                throw new Error(message || `Expected ${actual} to be close to ${expected} (difference: ${diff})`);
+            }
+        }
+
+        // Run tests
+        const runner = new TestRunner();
+        const calculator = new B2BCalculator();
+
+        // Test Section 1: Basic Calculations
+        runner.section('Basic Calculations');
+
+        runner.test('Calculate correct Bruto II from Neto', () => {
+            const result = calculator.calculate(100000, 50);
+            assert(result.brutoII === 162440, `Expected 162440, got ${result.brutoII}`);
+        });
+
+        runner.test('Handle zero neto plata', () => {
+            const result = calculator.calculate(0, 50);
+            assert(result.brutoII === 0, 'Bruto II should be 0');
+            assert(result.netoPovecanje === 0, 'Net increase should be 0');
+        });
+
+        runner.test('Calculate correct split shares', () => {
+            const result = calculator.calculate(100000, 75);
+            assert(result.freelancerShare === 0.75, 'Freelancer share should be 0.75');
+            assert(result.companyShare === 0.25, 'Company share should be 0.25');
+        });
+
+        // Test Section 2: Tax Rate Calculations
+        runner.section('Tax Rate Calculations');
+
+        runner.test('Default tax rate of 14%', () => {
+            const result = calculator.calculate(100000, 50);
+            const expectedTax = result.b2bBruto * 0.14;
+            assertClose(result.porezIznos, expectedTax, 0.01, 'Tax calculation incorrect');
+        });
+
+        runner.test('Zero tax rate calculation', () => {
+            calculator.setTaxRate(0);
+            const result = calculator.calculate(100000, 50);
+            assert(result.porezIznos === 0, 'Tax should be 0');
+            assert(result.b2bNeto === result.b2bBruto, 'Net should equal gross with 0% tax');
+            assert(result.netoPovecanje > 0, 'Net increase should be positive with 0% tax');
+        });
+
+        runner.test('Custom tax rates', () => {
+            calculator.setTaxRate(0.20);
+            const result = calculator.calculate(100000, 50);
+            assertClose(result.porezIznos, result.b2bBruto * 0.20, 0.01, 'Tax calculation incorrect for 20%');
+        });
+
+        // Test Section 3: Warning Logic
+        runner.section('Warning Logic');
+
+        runner.test('No warning with 0% tax rate', () => {
+            calculator.setTaxRate(0);
+            const splits = [10, 30, 50, 70, 90];
+            splits.forEach(split => {
+                const result = calculator.calculate(100000, split);
+                assert(!result.shouldShowWarning, `Should not show warning at ${split}% split with 0% tax`);
+            });
+        });
+
+        runner.test('Warning logic with 14% tax', () => {
+            calculator.setTaxRate(0.14);
+            const lowSplitResult = calculator.calculate(100000, 10);
+            const highSplitResult = calculator.calculate(100000, 90);
+            
+            // With 90% split, should have positive net increase
+            assert(!highSplitResult.shouldShowWarning, 'Should not show warning with high split');
+            assert(highSplitResult.netoPovecanje > 0, 'Net increase should be positive with high split');
+        });
+
+        // Test Section 4: Edge Cases
+        runner.section('Edge Cases');
+
+        runner.test('100% freelancer share', () => {
+            const result = calculator.calculate(100000, 100);
+            assert(result.freelancerShare === 1, 'Freelancer share should be 1');
+            assert(result.companyShare === 0, 'Company share should be 0');
+            assert(result.ustedaFirme === 0, 'Company savings should be 0');
+        });
+
+        runner.test('0% freelancer share', () => {
+            const result = calculator.calculate(100000, 0);
+            assert(result.freelancerShare === 0, 'Freelancer share should be 0');
+            assert(result.companyShare === 1, 'Company share should be 1');
+            assert(result.b2bBruto === 100000, 'B2B gross should equal net salary');
+        });
+
+        // Display summary
+        runner.displaySummary();
+    </script>
+</body>
+</html>

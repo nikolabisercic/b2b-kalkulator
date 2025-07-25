@@ -23,3 +23,8 @@ Thumbs.db
 push_to_github.sh
 deploy.sh
 local-scripts/
+
+# Node.js
+node_modules/
+coverage/
+package-lock.json
