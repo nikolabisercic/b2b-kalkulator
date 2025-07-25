@@ -30,7 +30,6 @@ B2B Kalkulator je alat koji pomaže zaposlenima da izračunaju finansijske impli
 
 - **Neto → Bruto II**: 1.6244
 - **Porez na B2B**: 14%
-- **Break-even point**: ~26% podele u korist freelancera
 
 ### Formula
 
